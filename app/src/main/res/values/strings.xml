@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Gpad</string>
+    <string name="lista_de_notas">Lista de notas</string>
+    <string name="titulo_de_la_nota">Titulo de la nota</string>
+    <string name="contenido_de_la_nota">Contenido de la nota</string>
+    <string name="agregar_nota">Agregar Nota</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_crear">Crear nota</string>
+    <string name="menu_editar">Editar nota</string>
+    <string name="menu_eliminar">Eliminar nota</string>
+    <string name="menu_borrar">Borrar todo</string>
+    <string name="menu_salir">Salir</string>
+</resources>
