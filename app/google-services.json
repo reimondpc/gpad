@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "636323171526",
+    "firebase_url": "https://gpad-732e7.firebaseio.com",
+    "project_id": "gpad-732e7",
+    "storage_bucket": "gpad-732e7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636323171526:android:69f7bb6aeb9723d8acdbc7",
+        "android_client_info": {
+          "package_name": "com.reimondpc.gpad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "636323171526-s1lg52vr27cev8ui9diinahe7bimf5kc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1rgNqn-TvPVaT78gefnLmJlCfdgjv_cM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "636323171526-s1lg52vr27cev8ui9diinahe7bimf5kc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
