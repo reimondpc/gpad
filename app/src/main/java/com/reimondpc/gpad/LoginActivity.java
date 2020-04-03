@@ -32,6 +32,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
 
@@ -41,6 +43,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener firebaseAuthListener;
+    private DatabaseReference reference;
 
     private ProgressBar progressBar;
 
@@ -73,12 +76,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         firebaseAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null){
                     goMainScreen();
-                }
+                    String userId = user.getUid();
+                    String name = user.getDisplayName();
+                    String email = user.getEmail();
 
+                    reference = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
+                    reference.child("Name").setValue(name);
+                    reference.child("Email").setValue(email);
+
+                }
             }
         };
         progressBar = (ProgressBar)findViewById(R.id.progressBar);
