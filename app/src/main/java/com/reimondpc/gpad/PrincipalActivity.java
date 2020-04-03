@@ -17,18 +17,35 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrincipalActivity extends AppCompatActivity {
+public class PrincipalActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private static final int ADD = Menu.FIRST;
     private static final int DELETE = Menu.FIRST + 1;
     private static final int EXIT = Menu.FIRST + 2;
+    private static final int LOGOUT = Menu.FIRST + 3;
     ListView lvLista;
     TextView tvLista;
     AdaptadorBD DB;
     List<String> item = null;
     String getTitle;
+
+    private GoogleApiClient googleApiClient;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener firebaseAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +62,33 @@ public class PrincipalActivity extends AppCompatActivity {
             }
         });
 
-        showNotes();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        googleApiClient = new  GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null){
+                    showNotes();
+                } else {
+                    goLogInScreen();
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseAuth.addAuthStateListener(firebaseAuthListener);
     }
 
     @Override
@@ -55,6 +98,7 @@ public class PrincipalActivity extends AppCompatActivity {
         menu.add(1, ADD, 0, R.string.menu_crear);
         menu.add(2, DELETE, 0, R.string.menu_borrar);
         menu.add(3, EXIT, 0, R.string.menu_salir);
+        menu.add(4, LOGOUT, 0, R.string.menu_cerrar_sesion);
         super.onCreateOptionsMenu(menu);
         return true;
     }
@@ -71,6 +115,9 @@ public class PrincipalActivity extends AppCompatActivity {
                 return true;
             case EXIT:
                 finish();
+                return true;
+            case LOGOUT:
+                logOut();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -205,6 +252,7 @@ public class PrincipalActivity extends AppCompatActivity {
         alerta.show();
     }
 
+    //Metodo para eliminar notas
     public void delete(String f){
         DB = new AdaptadorBD(this);
         if (f.equals("delete")){
@@ -215,6 +263,42 @@ public class PrincipalActivity extends AppCompatActivity {
                 DB.deleteNotes();
                 showNotes();
             }
+        }
+    }
+
+    //Metodo para regresar al login
+    private void goLogInScreen(){
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    //Metodo para cerrar sesion
+    public void logOut(){
+        firebaseAuth.signOut();
+        Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(@NonNull Status status) {
+                if (status.isSuccess()){
+                    goLogInScreen();
+                    Toast.makeText(PrincipalActivity.this, "Sesion cerrada con exito", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(PrincipalActivity.this, "No se pudo cerrar sesion", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (firebaseAuthListener != null){
+            firebaseAuth.removeAuthStateListener(firebaseAuthListener);
         }
     }
 }

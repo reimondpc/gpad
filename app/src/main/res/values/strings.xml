@@ -12,6 +12,7 @@
     <string name="menu_eliminar">Eliminar nota</string>
     <string name="menu_borrar">Borrar todo</string>
     <string name="menu_salir">Salir</string>
+    <string name="menu_cerrar_sesion">Cerrar Sesion</string>
     <string name="email">email</string>
     <string name="password">password</string>
     <string name="action_sign_in">sign in</string>
