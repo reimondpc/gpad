@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -43,6 +44,8 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     List<String> item = null;
     String getTitle;
 
+    FloatingActionButton fabAdd;
+
     private GoogleApiClient googleApiClient;
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener firebaseAuthListener;
@@ -54,11 +57,19 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
 
         tvLista = (TextView)findViewById(R.id.tvLista);
         lvLista = (ListView)findViewById(R.id.lvLista);
+        fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
         lvLista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 getTitle = (String) lvLista.getItemAtPosition(position);
                 alert("list");
+            }
+        });
+
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actividad("add");
             }
         });
 
