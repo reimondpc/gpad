@@ -62,7 +62,15 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 getTitle = (String) lvLista.getItemAtPosition(position);
+                actividad("edit");
+            }
+        });
+        lvLista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                getTitle = (String) lvLista.getItemAtPosition(position);
                 alert("list");
+                return true;
             }
         });
 
@@ -140,12 +148,14 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         DB = new AdaptadorBD(this);
         Cursor c = DB.getNotes();
         item = new ArrayList<String>();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(PrincipalActivity.this, R.layout.list_style, R.id.listHeader, item);
         String title = "";
         //Para asegurar que hay al menos un registro
         if (!c.moveToFirst()){
             //El cursor esta vacio
             tvLista.setText("No hay notas");
         } else {
+            tvLista.setText("Lista de notas (" + c.getCount() + ")");
             do {
                 title = c.getString(1);
 
@@ -153,7 +163,6 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
             } while (c.moveToNext());
         }
         //Adaptador de tipo ArrayAdapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1, item);
         lvLista.setAdapter(adapter);
     }
 
@@ -196,20 +205,14 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         final AlertDialog.Builder alerta = new AlertDialog.Builder(this);
         if (f.equals("list")){
             alerta.setTitle(getTitle)
-            .setMessage("¿Que accion desea realizar?")
-            .setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    final AlertDialog.Builder alerta2 = new AlertDialog.Builder(PrincipalActivity.this);
-                    alerta2.setTitle("Confirmar")
-                            .setMessage("¿Deseas eliminar la nota?")
-                            .setNegativeButton( "No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    return;
-                                }
-                            });
-                    alerta2.setPositiveButton( "Si", new DialogInterface.OnClickListener() {
+                    .setMessage("¿Deseas eliminar la nota " + getTitle + "?")
+                    .setNegativeButton( "No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            return;
+                        }
+                    })
+                    .setPositiveButton( "Si", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             delete("delete");
@@ -217,33 +220,24 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
                             startActivity(intent);
                         }
                     });
-                    alerta2.show();
-                }
-            });
-            alerta.setNegativeButton( "Editar", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    actividad("edit");
-                }
-            });
         } else {
             if (f.equals("deletes")){
                 alerta.setTitle("Confirmar")
-                .setMessage("¿Deseas eliminar todas las notas??")
-                .setNegativeButton( "Cancelar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        return;
-                    }
-                });
-                alerta.setPositiveButton( "Eliminar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        delete("deletes");
-                        Intent intent = getIntent();
-                        startActivity(intent);
-                    }
-                });
+                        .setMessage("¿Deseas eliminar todas las notas?")
+                        .setNegativeButton( "Cancelar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                return;
+                            }
+                        })
+                        .setPositiveButton( "Eliminar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                delete("deletes");
+                                Intent intent = getIntent();
+                                startActivity(intent);
+                            }
+                        });
             }
         }
         alerta.show();
