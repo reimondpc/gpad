@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,8 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AgregarActivity extends AppCompatActivity {
-    String type, getTitle, content;
-    Button add;
+    String type, pullTitle, content;
     EditText TITLE, CONTENT;
     private static final int DELETE = Menu.FIRST;
     AdaptadorBD DB;
@@ -25,31 +25,18 @@ public class AgregarActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.agregar);
-        add = (Button) findViewById(R.id.btnAgregar);
         TITLE = (EditText) findViewById(R.id.etTitulo);
         CONTENT = (EditText) findViewById(R.id.etNotas);
 
         Bundle bundle = this.getIntent().getExtras();
-        getTitle = bundle.getString("title");
+        pullTitle = bundle.getString("title");
         content = bundle.getString("content");
         type = bundle.getString("type");
 
-        if (type.equals("add")){
-            add.setText("Agregar Nota");
-        } else {
-            if (type.equals("edit")){
-                TITLE.setText(getTitle);
-                CONTENT.setText(content);
-                add.setText("Actualizar Nota");
-            }
+        if (type.equals("edit")){
+            TITLE.setText(pullTitle);
+            CONTENT.setText(content);
         }
-
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addUpdateNotes();
-            }
-        });
     }
 
     //Metodo para Mostar las opciones del menu
@@ -115,7 +102,6 @@ public class AgregarActivity extends AppCompatActivity {
             }
         } else {
             if (type.equals("edit")){
-                add.setText("Actualizar Nota");
                 if (title.equals("")){
                     msj = "Ingrese un titulo";
                     TITLE.requestFocus();
@@ -133,12 +119,19 @@ public class AgregarActivity extends AppCompatActivity {
                                 getTitle = c.getString(1);
                             }while (c.moveToNext());
                         }
-                        if (getTitle.equals(title)){
-                            TITLE.requestFocus();
-                            msj = "El titulo de la nota ya existe";
-                            Mensaje(msj);
+                        if (!title.equals(pullTitle)){
+                            if (getTitle.equals(title)){
+                                TITLE.requestFocus();
+                                msj = "El titulo de la nota ya existe";
+                                Mensaje(msj);
+                            } else {
+                                DB.updateNote(title, content, pullTitle);
+                                actividad(title, content);
+                                msj = "La nota se actualizo correctamente";
+                                Mensaje(msj);
+                            }
                         } else {
-                            DB.updateNote(title, content, getTitle);
+                            DB.updateNote(title, content, pullTitle);
                             actividad(title, content);
                             msj = "La nota se actualizo correctamente";
                             Mensaje(msj);
@@ -147,6 +140,14 @@ public class AgregarActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == event.KEYCODE_BACK){
+            addUpdateNotes();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     //Metodo para el enviar mensajes al usuario
@@ -158,9 +159,10 @@ public class AgregarActivity extends AppCompatActivity {
 
     //Metodo para enviar los datos a la siguiente actividad
     public void actividad(String title, String content){
-        Intent intent = new Intent(AgregarActivity.this, VerActivity.class);
+        Intent intent = new Intent(AgregarActivity.this, PrincipalActivity.class);
         intent.putExtra("title", title);
         intent.putExtra("content", content);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 }

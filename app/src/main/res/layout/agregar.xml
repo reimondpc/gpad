@@ -16,11 +16,4 @@
         android:id="@+id/etNotas"
         android:hint="@string/contenido_de_la_nota"
         android:gravity="center"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/agregar_nota"
-        android:id="@+id/btnAgregar"
-        android:layout_gravity="center"/>
-
 </LinearLayout>

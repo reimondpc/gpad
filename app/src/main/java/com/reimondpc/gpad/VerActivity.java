@@ -79,6 +79,8 @@ public class VerActivity extends AppCompatActivity {
             if (f.equals("delete")){
                 CookieSyncManager.createInstance(this);
                 Intent intent = new Intent(VerActivity.this, PrincipalActivity.class);
+                intent.putExtra("title", title);
+                intent.putExtra("content", content);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
