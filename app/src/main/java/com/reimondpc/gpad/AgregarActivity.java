@@ -7,9 +7,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.webkit.CookieSyncManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,7 +22,7 @@ public class AgregarActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.agregar);
+        setContentView(R.layout.activity_agregar);
         TITLE = (EditText) findViewById(R.id.etTitulo);
         CONTENT = (EditText) findViewById(R.id.etNotas);
 
@@ -68,8 +66,8 @@ public class AgregarActivity extends AppCompatActivity {
     private void addUpdateNotes(){
         DB = new AdaptadorBD(this);
         String title, content, msj;
-        title = TITLE.getText().toString();
-        content = CONTENT.getText().toString();
+        title = TITLE.getText().toString().trim();
+        content = CONTENT.getText().toString().trim();
         if (type.equals("add")){
             if (title.equals("")){
                 msj = "Ingrese un titulo";

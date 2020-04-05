@@ -188,14 +188,6 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
                 intent.putExtra("title", getTitle);
                 intent.putExtra("content", content);
                 startActivity(intent);
-            } else {
-                if (act.equals("see")){
-                    content = getNote();
-                    Intent intent = new Intent(PrincipalActivity.this, VerActivity.class);
-                    intent.putExtra("title", getTitle);
-                    intent.putExtra("content", content);
-                    startActivity(intent);
-                }
             }
         }
     }
@@ -205,13 +197,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         if (f.equals("list")){
             alerta.setTitle(getTitle)
             .setMessage("¿Que accion desea realizar?")
-            .setNeutralButton( "Ver", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    actividad("see");
-                }
-            });
-            alerta.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
+            .setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     final AlertDialog.Builder alerta2 = new AlertDialog.Builder(PrincipalActivity.this);

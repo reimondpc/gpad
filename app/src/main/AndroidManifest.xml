@@ -27,10 +27,6 @@
         <activity
             android:name=".AgregarActivity">
         </activity>
-        <activity
-            android:name=".VerActivity">
-
-        </activity>
     </application>
 
 </manifest>
