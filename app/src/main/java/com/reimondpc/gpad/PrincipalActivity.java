@@ -3,45 +3,46 @@ package com.reimondpc.gpad;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.reimondpc.gpad.Adapters.AdaptadorBD;
+import com.reimondpc.gpad.Adapters.AdapterNotes;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PrincipalActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private static final int ADD = Menu.FIRST;
     private static final int DELETE = Menu.FIRST + 1;
     private static final int EXIT = Menu.FIRST + 2;
     private static final int LOGOUT = Menu.FIRST + 3;
-    ListView lvLista;
-    TextView tvLista;
+
+    RecyclerView rvLista;
+    TextView tvTitulo;
     AdaptadorBD DB;
-    List<String> item = null;
+    ArrayList<Notes> listNotes;
     String getTitle;
 
     FloatingActionButton fabAdd;
@@ -55,24 +56,22 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
 
-        tvLista = (TextView)findViewById(R.id.tvLista);
-        lvLista = (ListView)findViewById(R.id.lvLista);
-        fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
-        lvLista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        initComponent();
+        /*rvLista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                getTitle = (String) lvLista.getItemAtPosition(position);
+                getTitle = (String) rvLista.getItemAtPosition(position);
                 actividad("edit");
             }
         });
-        lvLista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        rvLista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                getTitle = (String) lvLista.getItemAtPosition(position);
+                getTitle = (String) rvLista.getItemAtPosition(position);
                 alert("list");
                 return true;
             }
-        });
+        });*/
 
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +101,16 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
                 }
             }
         };
+    }
+
+    private void initComponent() {
+        tvTitulo = (TextView)findViewById(R.id.tvTitulo);
+        fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
+        listNotes = new ArrayList<>();
+        rvLista = (RecyclerView) findViewById(R.id.rvLista);
+        rvLista.setLayoutManager(new LinearLayoutManager(this));
+        rvLista.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        showNotes();
     }
 
     @Override
@@ -147,23 +156,23 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     private void showNotes(){
         DB = new AdaptadorBD(this);
         Cursor c = DB.getNotes();
-        item = new ArrayList<String>();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(PrincipalActivity.this, R.layout.list_style, R.id.listHeader, item);
-        String title = "";
+        AdapterNotes adapter = new AdapterNotes(listNotes);
+        Notes notes = null;
         //Para asegurar que hay al menos un registro
         if (!c.moveToFirst()){
             //El cursor esta vacio
-            tvLista.setText("No hay notas");
+            tvTitulo.setText("No hay notas");
         } else {
-            tvLista.setText("Lista de notas (" + c.getCount() + ")");
+            tvTitulo.setText("Lista de notas (" + c.getCount() + ")");
             do {
-                title = c.getString(1);
-
-                item.add(title);
+                notes = new Notes();
+                notes.setIdNote(c.getInt(0));
+                notes.setTitle(c.getString(1));
+                notes.setContent(c.getString(2));
+                listNotes.add(notes);
             } while (c.moveToNext());
         }
-        //Adaptador de tipo ArrayAdapter
-        lvLista.setAdapter(adapter);
+        rvLista.setAdapter(adapter);
     }
 
     //Metodo para obtener una nota de la lista

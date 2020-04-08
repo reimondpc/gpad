@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.reimondpc.gpad.Adapters.AdaptadorBD;
+
 public class AgregarActivity extends AppCompatActivity {
     String type, pullTitle, content;
     EditText TITLE, CONTENT;

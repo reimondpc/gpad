@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp"
     tools:context=".PrincipalActivity">
 
     <LinearLayout
@@ -14,12 +16,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tvLista"
+            android:id="@+id/tvTitulo"
             android:text="@string/lista_de_notas"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textSize="30sp"
+            android:layout_marginBottom="20dp"/>
 
-        <ListView
-            android:id="@+id/lvLista"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvLista"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -31,7 +35,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
         app:fab_colorNormal="@color/colorPrimary"
-        app:fab_icon="@drawable/anadir"/>
+        app:fab_icon="@drawable/ic_add"/>
 
 
 </RelativeLayout>

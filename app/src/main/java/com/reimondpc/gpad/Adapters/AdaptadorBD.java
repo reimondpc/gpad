@@ -1,4 +1,4 @@
-package com.reimondpc.gpad;
+package com.reimondpc.gpad.Adapters;
 
 import android.content.ContentValues;
 import android.content.Context;
