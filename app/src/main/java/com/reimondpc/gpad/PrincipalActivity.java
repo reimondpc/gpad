@@ -44,6 +44,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     AdaptadorBD DB;
     ArrayList<Notes> listNotes;
     String getTitle;
+    AdapterNotes adapter;
 
     FloatingActionButton fabAdd;
 
@@ -109,6 +110,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         listNotes = new ArrayList<>();
         rvLista = (RecyclerView) findViewById(R.id.rvLista);
         rvLista.setLayoutManager(new LinearLayoutManager(this));
+        rvLista.setHasFixedSize(true);
         rvLista.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         showNotes();
     }
@@ -156,7 +158,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     private void showNotes(){
         DB = new AdaptadorBD(this);
         Cursor c = DB.getNotes();
-        AdapterNotes adapter = new AdapterNotes(listNotes);
+        adapter = new AdapterNotes(listNotes);
         Notes notes = null;
         //Para asegurar que hay al menos un registro
         if (!c.moveToFirst()){
@@ -164,6 +166,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
             tvTitulo.setText("No hay notas");
         } else {
             tvTitulo.setText("Lista de notas (" + c.getCount() + ")");
+            listNotes.clear();
             do {
                 notes = new Notes();
                 notes.setIdNote(c.getInt(0));
@@ -173,6 +176,17 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
             } while (c.moveToNext());
         }
         rvLista.setAdapter(adapter);
+        click();
+    }
+
+    public void click(){
+        adapter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getTitle = listNotes.get(rvLista.getChildAdapterPosition(v)).getTitle();
+                actividad("edit");
+            }
+        });
     }
 
     //Metodo para obtener una nota de la lista

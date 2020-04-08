@@ -3,6 +3,7 @@ package com.reimondpc.gpad.Adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -14,9 +15,12 @@ import com.reimondpc.gpad.R;
 
 import java.util.ArrayList;
 
-public class AdapterNotes extends RecyclerView.Adapter<AdapterNotes.ViewHolderNotes> {
+public class AdapterNotes
+        extends RecyclerView.Adapter<AdapterNotes.ViewHolderNotes>
+        implements View.OnClickListener {
 
-    private ArrayList<Notes> listNotes;
+    ArrayList<Notes> listNotes;
+    private View.OnClickListener listener;
 
     public AdapterNotes(ArrayList<Notes> listNotes) {
         this.listNotes = listNotes;
@@ -27,6 +31,7 @@ public class AdapterNotes extends RecyclerView.Adapter<AdapterNotes.ViewHolderNo
     public ViewHolderNotes onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.notes_list, null, false);
+        view.setOnClickListener(this);
         return new ViewHolderNotes(view);
     }
 
@@ -38,6 +43,17 @@ public class AdapterNotes extends RecyclerView.Adapter<AdapterNotes.ViewHolderNo
     @Override
     public int getItemCount() {
         return listNotes.size();
+    }
+
+    public void setOnClickListener(View.OnClickListener listener){
+        this.listener = listener;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (listener != null){
+            listener.onClick(v);
+        }
     }
 
     public class ViewHolderNotes extends RecyclerView.ViewHolder {
