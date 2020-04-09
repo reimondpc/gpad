@@ -38,6 +38,7 @@ public class AdapterNotes
     @Override
     public void onBindViewHolder(@NonNull ViewHolderNotes holder, int position) {
         holder.titleShow.setText(listNotes.get(position).getTitle());
+        holder.timestamp.setText(listNotes.get(position).getTimestamp());
     }
 
     @Override
@@ -57,10 +58,11 @@ public class AdapterNotes
     }
 
     public class ViewHolderNotes extends RecyclerView.ViewHolder {
-        TextView titleShow;
+        TextView titleShow, timestamp;
         public ViewHolderNotes(@NonNull View itemView) {
             super(itemView);
             titleShow = itemView.findViewById(R.id.listHeader);
+            timestamp = itemView.findViewById(R.id.timestamp);
         }
     }
 }

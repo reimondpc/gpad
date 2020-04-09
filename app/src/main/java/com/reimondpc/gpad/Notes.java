@@ -5,14 +5,17 @@ public class Notes {
     private int idNote;
     private String title;
     private String content;
+    private String timestamp;
+
 
     public Notes() {
     }
 
-    public Notes(int idNote, String title, String content) {
+    public Notes(int idNote, String title, String content, String timestamp) {
         this.idNote = idNote;
         this.title = title;
         this.content = content;
+        this.timestamp = timestamp;
     }
 
     public int getIdNote() {
@@ -37,5 +40,13 @@ public class Notes {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

@@ -172,6 +172,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
                 notes.setIdNote(c.getInt(0));
                 notes.setTitle(c.getString(1));
                 notes.setContent(c.getString(2));
+                notes.setTimestamp("8/4/2020");
                 listNotes.add(notes);
             } while (c.moveToNext());
         }
@@ -179,6 +180,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         click();
     }
 
+    //Metodo para hacer click en las notas
     public void click(){
         adapter.setOnClickListener(new View.OnClickListener() {
             @Override
