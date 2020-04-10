@@ -3,7 +3,6 @@ package com.reimondpc.gpad.Adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -15,15 +14,14 @@ import com.reimondpc.gpad.R;
 
 import java.util.ArrayList;
 
-public class AdapterNotes
-        extends RecyclerView.Adapter<AdapterNotes.ViewHolderNotes>
-        implements View.OnClickListener {
+public class AdapterNotes extends RecyclerView.Adapter<AdapterNotes.ViewHolderNotes> {
 
     ArrayList<Notes> listNotes;
-    private View.OnClickListener listener;
+    private OnNoteListener mOnNoteListener;
 
-    public AdapterNotes(ArrayList<Notes> listNotes) {
-        this.listNotes = listNotes;
+    public AdapterNotes(ArrayList<Notes> mlistNotes, OnNoteListener onNoteListener) {
+        this.listNotes = mlistNotes;
+        this.mOnNoteListener = onNoteListener;
     }
 
     @NonNull
@@ -31,12 +29,11 @@ public class AdapterNotes
     public ViewHolderNotes onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.notes_list, null, false);
-        view.setOnClickListener(this);
-        return new ViewHolderNotes(view);
+        return new ViewHolderNotes(view, mOnNoteListener);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolderNotes holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolderNotes holder, final int position) {
         holder.titleShow.setText(listNotes.get(position).getTitle());
         holder.timestamp.setText(listNotes.get(position).getTimestamp());
     }
@@ -46,23 +43,26 @@ public class AdapterNotes
         return listNotes.size();
     }
 
-    public void setOnClickListener(View.OnClickListener listener){
-        this.listener = listener;
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (listener != null){
-            listener.onClick(v);
-        }
-    }
-
-    public class ViewHolderNotes extends RecyclerView.ViewHolder {
+    public class ViewHolderNotes extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView titleShow, timestamp;
-        public ViewHolderNotes(@NonNull View itemView) {
+        OnNoteListener onNoteListener;
+
+        public ViewHolderNotes(@NonNull View itemView, OnNoteListener onNoteListener) {
             super(itemView);
             titleShow = itemView.findViewById(R.id.listHeader);
             timestamp = itemView.findViewById(R.id.timestamp);
+            this.onNoteListener = onNoteListener;
+
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            onNoteListener.onNoteClick(getAdapterPosition());
+        }
+    }
+
+    public interface OnNoteListener {
+        void onNoteClick(int position);
     }
 }

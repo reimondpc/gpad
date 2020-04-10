@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Gpad</string>
     <string name="lista_de_notas">Lista de notas</string>
-    <string name="titulo_de_la_nota">Titulo de la nota</string>
-    <string name="contenido_de_la_nota">Contenido de la nota</string>
+    <string name="titulo_de_la_nota">Titulo</string>
+    <string name="contenido_de_la_nota">Contenido</string>
     <string name="agregar_nota">Agregar Nota</string>
 
     <string name="action_settings">Settings</string>

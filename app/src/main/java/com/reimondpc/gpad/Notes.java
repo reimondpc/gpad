@@ -2,7 +2,7 @@ package com.reimondpc.gpad;
 
 public class Notes {
 
-    private int idNote;
+    private String idNote;
     private String title;
     private String content;
     private String timestamp;
@@ -11,18 +11,18 @@ public class Notes {
     public Notes() {
     }
 
-    public Notes(int idNote, String title, String content, String timestamp) {
+    public Notes(String idNote, String title, String content, String timestamp) {
         this.idNote = idNote;
         this.title = title;
         this.content = content;
         this.timestamp = timestamp;
     }
 
-    public int getIdNote() {
+    public String getIdNote() {
         return idNote;
     }
 
-    public void setIdNote(int idNote) {
+    public void setIdNote(String idNote) {
         this.idNote = idNote;
     }
 
