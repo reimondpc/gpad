@@ -36,7 +36,7 @@ import com.reimondpc.gpad.Adapters.AdapterNotes;
 
 import java.util.ArrayList;
 
-public class PrincipalActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, AdapterNotes.OnNoteListener {
+public class PrincipalActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, AdapterNotes.NoteModifier {
     private static final int ADD = Menu.FIRST;
     private static final int DELETE = Menu.FIRST + 1;
     private static final int EXIT = Menu.FIRST + 2;
@@ -45,10 +45,13 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     private static final String TAG = "PrincipalActivity";
 
     RecyclerView rvLista;
-    TextView tvTitulo;
-    ArrayList<Notes> listNotes;
-    String getTitle, getContent, noteSelected;
     AdapterNotes adapter;
+
+    TextView tvTitulo;
+
+    ArrayList<Notes> listNotes;
+
+    String getTitle, getContent, noteSelected;
 
     FloatingActionButton fabAdd;
 
@@ -113,7 +116,8 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         rvLista.setHasFixedSize(true);
         rvLista.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         initializerFirebase();
-        adapter = new AdapterNotes(listNotes, this);
+        adapter = new AdapterNotes(this ,listNotes);
+        adapter.setNoteModifier(this);
         showNotes();
     }
 
@@ -301,10 +305,12 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
 
     //Metodo para hacer Click en las notas
     @Override
-    public void onNoteClick(int position) {
+    public void onNoteSelected(int position) {
         noteSelected = listNotes.get(position).getIdNote();
+        Notes notes = listNotes.get(position);
         getTitle = listNotes.get(position).getTitle();
         getContent = listNotes.get(position).getContent();
         actividad("edit");
+
     }
 }

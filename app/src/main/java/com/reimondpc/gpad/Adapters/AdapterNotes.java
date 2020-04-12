@@ -1,10 +1,13 @@
 package com.reimondpc.gpad.Adapters;
 
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,28 +17,58 @@ import com.reimondpc.gpad.R;
 
 import java.util.ArrayList;
 
-public class AdapterNotes extends RecyclerView.Adapter<AdapterNotes.ViewHolderNotes> {
+public class AdapterNotes extends RecyclerView.Adapter<AdapterNotes.NoteViewHolder> {
+    private static final String TAG = AdapterNotes.class.getSimpleName();
 
-    ArrayList<Notes> listNotes;
-    private OnNoteListener mOnNoteListener;
+    public interface NoteModifier {
+        public void onNoteSelected(int position);
+    }
 
-    public AdapterNotes(ArrayList<Notes> mlistNotes, OnNoteListener onNoteListener) {
+    private ArrayList<Notes> listNotes;
+    private Context context;
+    private NoteModifier noteModifier;
+
+    public AdapterNotes(Context context, ArrayList<Notes> mlistNotes) {
         this.listNotes = mlistNotes;
-        this.mOnNoteListener = onNoteListener;
+        this.context = context;
+    }
+
+    public void setNoteModifier(NoteModifier noteModifier){
+        this.noteModifier = noteModifier;
     }
 
     @NonNull
     @Override
-    public ViewHolderNotes onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.notes_list, null, false);
-        return new ViewHolderNotes(view, mOnNoteListener);
+    public NoteViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.notes_list, parent, false);
+        final NoteViewHolder noteViewHolder = new NoteViewHolder(view);
+        view.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v) {
+                int position = noteViewHolder.getAdapterPosition();
+                Toast.makeText(parent.getContext(), "Item at Position " + position, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (noteModifier != null){
+                    noteModifier.onNoteSelected(noteViewHolder.getAdapterPosition());
+                }
+            }
+        });
+        Log.i(TAG, "onCreateViewHolder invoked");
+        return noteViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolderNotes holder, final int position) {
-        holder.titleShow.setText(listNotes.get(position).getTitle());
-        holder.timestamp.setText(listNotes.get(position).getTimestamp());
+    public void onBindViewHolder(final NoteViewHolder holder, int position) {
+        final Notes notes = listNotes.get(position);
+        holder.titleShow.setText(notes.getTitle());
+        holder.timestamp.setText(notes.getTimestamp());
+
+        Log.i(TAG, "onBindViewHolder invoked: " + position);
     }
 
     @Override
@@ -43,26 +76,13 @@ public class AdapterNotes extends RecyclerView.Adapter<AdapterNotes.ViewHolderNo
         return listNotes.size();
     }
 
-    public class ViewHolderNotes extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView titleShow, timestamp;
-        OnNoteListener onNoteListener;
 
-        public ViewHolderNotes(@NonNull View itemView, OnNoteListener onNoteListener) {
+        public NoteViewHolder(View itemView) {
             super(itemView);
             titleShow = itemView.findViewById(R.id.listHeader);
             timestamp = itemView.findViewById(R.id.timestamp);
-            this.onNoteListener = onNoteListener;
-
-            itemView.setOnClickListener(this);
         }
-
-        @Override
-        public void onClick(View v) {
-            onNoteListener.onNoteClick(getAdapterPosition());
-        }
-    }
-
-    public interface OnNoteListener {
-        void onNoteClick(int position);
     }
 }
