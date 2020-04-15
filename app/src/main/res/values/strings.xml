@@ -16,4 +16,5 @@
     <string name="email">email</string>
     <string name="password">password</string>
     <string name="action_sign_in">sign in</string>
+    <string name="date">timestamp</string>
 </resources>

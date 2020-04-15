@@ -2,6 +2,8 @@ package com.reimondpc.gpad;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Path;
+import android.icu.text.RelativeDateTimeFormatter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,7 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.appcompat.view.ActionMode;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,13 +32,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.reimondpc.gpad.Adapters.AdaptadorBD;
 import com.reimondpc.gpad.Adapters.AdapterNotes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class PrincipalActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, AdapterNotes.NoteModifier {
+public class PrincipalActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, AdapterNotes.NoteViewHolder.ClickListener {
     private static final int ADD = Menu.FIRST;
     private static final int DELETE = Menu.FIRST + 1;
     private static final int EXIT = Menu.FIRST + 2;
@@ -45,10 +48,11 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     private static final String TAG = "PrincipalActivity";
 
     RecyclerView rvLista;
-    AdapterNotes adapter;
+    AdapterNotes adapterNotes;
+    private ActionModeCallback actionModeCallback = new ActionModeCallback();
+    private ActionMode actionMode;
 
     TextView tvTitulo;
-
     ArrayList<Notes> listNotes;
 
     String getTitle, getContent, noteSelected;
@@ -114,19 +118,19 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         rvLista = (RecyclerView) findViewById(R.id.rvLista);
         rvLista.setLayoutManager(new LinearLayoutManager(this));
         rvLista.setHasFixedSize(true);
-        rvLista.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         initializerFirebase();
-        adapter = new AdapterNotes(this ,listNotes);
-        adapter.setNoteModifier(this);
+        adapterNotes = new AdapterNotes(listNotes, this);
         showNotes();
     }
 
     //Metodo para inicializar Firebase
     private void initializerFirebase() {
         FirebaseUser user = firebaseAuth.getInstance().getCurrentUser();
-        String userId = user.getUid();
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("Users").child(userId);
+        if (user != null){
+            String userId = user.getUid();
+            firebaseDatabase = FirebaseDatabase.getInstance();
+            databaseReference = firebaseDatabase.getReference().child("Users").child(userId);
+        }
     }
 
     @Override
@@ -170,23 +174,31 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
 
     //Metodo para mostrar las notas en la lista
     private void showNotes() {
-        databaseReference.child("Notes").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                listNotes.clear();
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    Notes notes = data.getValue(Notes.class);
-                    listNotes.add(notes);
-
-                    rvLista.setAdapter(adapter);
+        if (databaseReference != null){
+            databaseReference.child("Notes").orderByChild("timestamp").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    listNotes.clear();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        Notes notes = data.getValue(Notes.class);
+                        listNotes.add(notes);
+                        rvLista.setAdapter(adapterNotes);
+                    }
+                    if (listNotes.isEmpty()){
+                        tvTitulo.setText("No hay notas");
+                    } else {
+                        tvTitulo.setText("(" + listNotes.size() + ")" + " Notas");
+                    }
+                    Collections.reverse(listNotes);
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
+
     }
 
     //Actividad para saber si crear o editar una nota
@@ -214,8 +226,7 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     private void alert(String f) {
         final AlertDialog.Builder alerta = new AlertDialog.Builder(this);
         if (f.equals("list")) {
-            alerta.setTitle(getTitle)
-                    .setMessage("¿Deseas eliminar la nota " + getTitle + "?")
+            alerta.setMessage("¿Deseas eliminar las notas seleccionadas?")
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -259,10 +270,12 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
         if (f.equals("delete")) {
             notes.setIdNote(noteSelected);
             databaseReference.child("Notes").child(notes.getIdNote()).removeValue();
+            adapterNotes.removeItems(adapterNotes.getSelectedItems());
         } else {
             if (f.equals("deletes")) {
                 notes.setIdNote(noteSelected);
                 databaseReference.child("Notes").removeValue();
+                adapterNotes.notifyDataSetChanged();
             }
         }
     }
@@ -305,12 +318,71 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
 
     //Metodo para hacer Click en las notas
     @Override
-    public void onNoteSelected(int position) {
-        noteSelected = listNotes.get(position).getIdNote();
-        Notes notes = listNotes.get(position);
-        getTitle = listNotes.get(position).getTitle();
-        getContent = listNotes.get(position).getContent();
-        actividad("edit");
+    public void onItemClicked(int position) {
+        if (actionMode != null){
+            toggleSelection(position);
+        } else {
+            noteSelected = listNotes.get(position).getIdNote();
+            Notes notes = listNotes.get(position);
+            getTitle = listNotes.get(position).getTitle();
+            getContent = listNotes.get(position).getContent();
+            actividad("edit");
+        }
+    }
 
+    @Override
+    public boolean onItemLongClicked(int position) {
+        if (actionMode == null){
+            noteSelected = listNotes.get(position).getIdNote();
+            getTitle = listNotes.get(position).getTitle();
+            actionMode = startSupportActionMode(actionModeCallback);
+        }
+        toggleSelection(position);
+        return true;
+    }
+
+    private void toggleSelection(int position){
+        adapterNotes.toggleSelection(position);
+        int count = adapterNotes.getSelectedItemCount();
+        if (count == 0){
+            actionMode.finish();
+        } else {
+            actionMode.setTitle(String.valueOf(count));
+            actionMode.invalidate();
+        }
+    }
+
+    private class ActionModeCallback implements ActionMode.Callback{
+        private final String TAG = ActionModeCallback.class.getSimpleName();
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.menu_delete, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.action_delete:
+                    alert("list");
+                    Log.d(TAG, "action_delete");
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            adapterNotes.clearSelection();
+            actionMode = null;
+        }
     }
 }

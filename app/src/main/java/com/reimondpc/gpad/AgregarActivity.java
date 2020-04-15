@@ -15,6 +15,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 public class AgregarActivity extends AppCompatActivity {
@@ -69,10 +74,10 @@ public class AgregarActivity extends AppCompatActivity {
     private void addUpdateNotes() {
         Notes notes = new Notes();
         //DB = new AdaptadorBD(this);
-        String title, content, timestamp, msj;
+        String title, content, timeStamp, msj;
+        timeStamp = new SimpleDateFormat("dd/MM/yyyy hh:mm aa").format(new Date());
         title = TITLE.getText().toString().trim();
         content = CONTENT.getText().toString().trim();
-        timestamp = "09/04/2020";
         if (type.equals("add")) {
             if (title.equals("")) {
                 msj = "Ingrese un titulo";
@@ -103,7 +108,7 @@ public class AgregarActivity extends AppCompatActivity {
                         notes.setIdNote(UUID.randomUUID().toString());
                         notes.setTitle(title);
                         notes.setContent(content);
-                        notes.setTimestamp(timestamp);
+                        notes.setTimestamp(timeStamp);
                         databaseReference.child("Notes").child(notes.getIdNote()).setValue(notes);
                         actividad(title, content);
                         msj = "La nota se guardo correctamente";
@@ -143,7 +148,7 @@ public class AgregarActivity extends AppCompatActivity {
                                 notes.setIdNote(noteSelected);
                                 notes.setTitle(title);
                                 notes.setContent(content);
-                                notes.setTimestamp(timestamp);
+                                notes.setTimestamp(timeStamp);
                                 databaseReference.child("Notes").child(notes.getIdNote()).setValue(notes);
                                 actividad(title, content);
                                 msj = "La nota se actualizo correctamente";
@@ -153,7 +158,7 @@ public class AgregarActivity extends AppCompatActivity {
                             notes.setIdNote(noteSelected);
                             notes.setTitle(title);
                             notes.setContent(content);
-                            notes.setTimestamp(timestamp);
+                            notes.setTimestamp(timeStamp);
                             databaseReference.child("Notes").child(notes.getIdNote()).setValue(notes);
                             actividad(title, content);
                             msj = "La nota se actualizo correctamente";

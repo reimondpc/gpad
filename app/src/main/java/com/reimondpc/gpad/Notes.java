@@ -1,5 +1,7 @@
 package com.reimondpc.gpad;
 
+import java.util.Comparator;
+
 public class Notes {
 
     private String idNote;
