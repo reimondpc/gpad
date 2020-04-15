@@ -2,9 +2,8 @@ package com.reimondpc.gpad;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Path;
-import android.icu.text.RelativeDateTimeFormatter;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,7 +33,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.reimondpc.gpad.Adapters.AdapterNotes;
 
@@ -142,12 +142,30 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.principal, menu);
-        menu.add(1, ADD, 0, R.string.menu_crear);
-        menu.add(2, DELETE, 0, R.string.menu_borrar);
-        menu.add(3, EXIT, 0, R.string.menu_salir);
-        menu.add(4, LOGOUT, 0, R.string.menu_cerrar_sesion);
-        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        MenuItem item = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (!TextUtils.isEmpty(query.trim())){
+                    searchNotes(query);
+                } else {
+                    showNotes();
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (!TextUtils.isEmpty(newText.trim())){
+                    searchNotes(newText);
+                } else {
+                    showNotes();
+                }
+                return false;
+            }
+        });
         return true;
     }
 
@@ -198,7 +216,36 @@ public class PrincipalActivity extends AppCompatActivity implements GoogleApiCli
                 }
             });
         }
+    }
 
+    private void searchNotes(final String query) {
+        if (databaseReference != null){
+            databaseReference.child("Notes").orderByChild("timestamp").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    listNotes.clear();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        Notes notes = data.getValue(Notes.class);
+                        if (notes.getTitle().toLowerCase().contains(query.toLowerCase())){
+                            listNotes.add(notes);
+                        }
+                        adapterNotes.notifyDataSetChanged();
+                        rvLista.setAdapter(adapterNotes);
+                    }
+                    if (listNotes.isEmpty()){
+                        tvTitulo.setText("No hay notas");
+                    } else {
+                        tvTitulo.setText("(" + listNotes.size() + ")" + " Notas");
+                    }
+                    Collections.reverse(listNotes);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     //Actividad para saber si crear o editar una nota

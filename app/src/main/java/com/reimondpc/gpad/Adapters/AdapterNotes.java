@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +16,7 @@ import com.reimondpc.gpad.Notes;
 import com.reimondpc.gpad.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -24,8 +27,8 @@ public class AdapterNotes extends SelectableAdapter<AdapterNotes.NoteViewHolder>
     private ArrayList<Notes> listNotes;
     private NoteViewHolder.ClickListener clickListener;
 
-    public AdapterNotes(ArrayList<Notes> mlistNotes, NoteViewHolder.ClickListener clickListener) {
-        this.listNotes = mlistNotes;
+    public AdapterNotes(ArrayList<Notes> listNotes, NoteViewHolder.ClickListener clickListener) {
+        this.listNotes = listNotes;
         this.clickListener = clickListener;
     }
 

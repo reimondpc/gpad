@@ -30,9 +30,6 @@ public class AgregarActivity extends AppCompatActivity {
     DatabaseReference databaseReference;
     FirebaseAuth firebaseAuth;
 
-
-    //AdaptadorBD DB;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
